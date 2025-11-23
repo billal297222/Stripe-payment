@@ -14,19 +14,29 @@ class StripePaymentController extends Controller
         return view('stripe');
     }
 
-    public function processPayment(Request $request)
+  public function processPayment(Request $request)
     {
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'currency' => 'required|string',
+            'name' => 'required|string',
+        ]);
+
+        Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
-            Charge::create([
-                'amount' => 100 * 100,
-                'currency' => 'usd',
-                'source' => $request->stripeToken,
-                'description' => 'Test payment from Laravel 11',
+            $paymentIntent = PaymentIntent::create([
+                'amount' => $request->amount * 100, // cents
+                'currency' => $request->currency,
+                'payment_method_types' => ['card'],
+            ]);
+
+            $paymentIntent->confirm([
+                'payment_method' => $request->stripeToken
             ]);
 
             return back()->with('success', 'Payment successful!');
+
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -35,15 +45,11 @@ class StripePaymentController extends Controller
 
     public function createPayment(Request $request){
 
-
-        // Stripe::setApiKey(env('STRIPE_SECRET'));
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-
-        $request->validate(([
+        $request->validate([
             'amount' => 'required|numeric|min:1',
             'currency' => 'required|string',
-        ]));
-         Stripe::setApiKey(config('stripe.secret'));
+        ]);
+       Stripe::setApiKey(config('services.stripe.secret'));
 
          $paymentIntent = PaymentIntent::create([
             'amount' => $request->amount*100,
