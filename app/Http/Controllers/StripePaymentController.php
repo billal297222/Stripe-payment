@@ -59,5 +59,33 @@ class StripePaymentController extends Controller
          return response()->json(['client_secret'=>$paymentIntent->client_secret]);
 
     }
+
+    public function handleWebhook(Request $request)
+{
+    $payload = $request->getContent();
+    $sigHeader = $request->header('Stripe-Signature');
+    $endpointSecret = env('STRIPE_WEBHOOK_SECRET');
+
+    try {
+        $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
+
+        switch ($event->type) {
+            case 'payment_intent.succeeded':
+                $paymentIntent = $event->data->object;
+                // Update your order or booking here
+                break;
+
+            case 'payment_intent.payment_failed':
+                $paymentIntent = $event->data->object;
+                // Handle failed payment
+                break;
+        }
+
+        return response()->json(['status' => 'success']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 400);
+    }
+}
+
 }
 
