@@ -61,7 +61,7 @@ class StripePaymentController extends Controller
     }
 
     public function handleWebhook(Request $request)
-{
+  {
     $payload = $request->getContent();
     $sigHeader = $request->header('Stripe-Signature');
     $endpointSecret = env('STRIPE_WEBHOOK_SECRET');
@@ -85,7 +85,52 @@ class StripePaymentController extends Controller
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 400);
     }
-}
+  }
 
 }
+
+
+
+
+// Database schema (for reference):Products, Orders, Payments, Users tables with relevant fields and relationships.
+
+// Table users {
+//   id int [pk, increment]
+//   name varchar
+//   email varchar
+//   password varchar
+//   created_at datetime
+//   updated_at datetime
+// }
+
+// Table products {
+//   id int [pk, increment]
+//   name varchar
+//   description text
+//   price decimal(10,2)
+//   created_at datetime
+//   updated_at datetime
+// }
+
+// Table orders {
+//   id int [pk, increment]
+//   user_id int [ref: > users.id]    // who bought
+//   product_id int [ref: > products.id]
+//   amount decimal(10,2)            // order amount
+//   status enum('pending','paid','failed','cancelled','expired') [default: 'pending']
+//   stripe_payment_intent_id varchar // link to Stripe
+//   created_at datetime
+//   updated_at datetime
+// }
+
+// Table payments {
+//   id int [pk, increment]
+//   order_id int [ref: > orders.id]
+//   stripe_payment_intent_id varchar
+//   amount decimal(10,2)
+//   currency varchar
+//   status enum('pending','succeeded','failed')
+//   created_at datetime
+//   updated_at datetime
+// }
 
