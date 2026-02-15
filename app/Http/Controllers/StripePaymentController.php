@@ -72,12 +72,12 @@ class StripePaymentController extends Controller
         switch ($event->type) {
             case 'payment_intent.succeeded':
                 $paymentIntent = $event->data->object;
-                // Update your order or booking here
+
                 break;
 
             case 'payment_intent.payment_failed':
                 $paymentIntent = $event->data->object;
-                // Handle failed payment
+
                 break;
         }
 
@@ -87,8 +87,19 @@ class StripePaymentController extends Controller
     }
   }
 
+
 }
 
+
+//  1.createSubscription
+
+// 2.cancelSubscription
+
+// 3.subscriptionStatus
+
+// 4.changePlan
+
+// 5.webhook handler
 
 
 
@@ -133,4 +144,8 @@ class StripePaymentController extends Controller
 //   created_at datetime
 //   updated_at datetime
 // }
+
+
+
+
 
